@@ -71,4 +71,4 @@
 
 ## :envelope: Contato
 
-* Repositório criado por [Prof. Ricardo Leme](https://github.com/fatecitu), email: ricardo.leme@fatec.sp.gov.br
+* Repositório criado por [Gabriela Sígolo](https://github.com/gabrielasigolo), email: gabrielasigolo12@gmail.com
