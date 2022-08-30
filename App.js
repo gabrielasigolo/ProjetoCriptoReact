@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   View, Text, StyleSheet, StatusBar, Image,
-  ActivityIndicator, TextInput, FlatList
+  ActivityIndicator, TextInput, FlatList, ListViewComponent
 } from 'react-native'
 import { getCotacoes } from './services/criptoService'
 import themes from './themes'
@@ -24,6 +24,24 @@ const App = () => {
     carregaCotacoes()
   }, []) // quando o array vazio, executa só uma vez
 
+  const semDados = () => {
+    return(
+      <View style={{
+        backgroundColor: themes.colors.utility.danger,
+        borderRadius: 16,
+        marginTop: 16
+      }}>
+        <Text style={{
+          color: themes.colors.neutral.foreground,
+          margin: 8,
+          fontWeight: 'bold'
+        }}>
+          ☹️ Ah não! Infelizmente a cripto {busca} não existe. Refaça a busca.
+          </Text>
+      </View>
+    )
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor={themes.colors.brand.azul} />
@@ -44,9 +62,13 @@ const App = () => {
       />
       <FlatList
         style={styles.listagem}
-        data={criptos}
+        data={criptos.filter(
+          (coin) => 
+          coin.name.toLowerCase().includes(busca.toLocaleLowerCase()) || 
+          coin.symbol.toLowerCase().includes(busca.toLocaleLowerCase()) 
+        )}
         showsVerticalScrollIndicator={true}
-        renderItem={({ item }) => <CriptoItem coin={item} />}
+        renderItem={({ item }) => <CriptoItem coin={item} />} ListEmptyComponent={semDados()}
       />
 
     </View>

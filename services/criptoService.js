@@ -3,7 +3,12 @@ export const getCotacoes = async () => {
     try {
         const response = await fetch(urlCoin)
         const data = await response.json()
-        console.log(data)
+        data.sort(function(elemAtual, elemAnterior){
+            let atual = elemAtual.name.toUpperCase(),
+                anterior = elemAnterior.name.toUpperCase()
+            return atual == anterior ? 0 : atual > anterior ? 1 : -1
+        })
+        // console.table(data)
         return data
     }
     catch (error) {
