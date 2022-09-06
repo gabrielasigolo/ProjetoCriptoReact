@@ -1,16 +1,31 @@
 import React, { useState, useEffect } from 'react'
 import {
   View, Text, StyleSheet, StatusBar, Image,
-  ActivityIndicator, TextInput, FlatList, ListViewComponent
+  ActivityIndicator, TextInput, FlatList, Modal, Pressable
 } from 'react-native'
-import { getCotacoes } from './services/criptoService'
+import { getCotacoes, getGraficoCripto } from './services/criptoService'
 import themes from './themes'
 import CriptoItem from './components/CriptoItem'
+// yarn add react-native-pure-chart
+import PureChart from 'react-native-pure-chart'
 
 const App = () => {
   const [criptos, setCriptos] = useState([])
   const [carregando, setCarregando] = useState(false)
   const [busca, setBusca] = useState('')
+  const [modalVisivel, setModalVisivel] = useState(false)
+  const [criptoSelecionada, setCriptoSelecionada] = useState({})
+  const [dadosGrafico, setDadosGrafico] = useState([])
+  const [graficoBarra, setGraficoBarra] = useState(true)
+
+
+  const trataModal = async(moeda) => {
+    // alert(JSON.stringify(moeda))
+    const dadosAPI = await getGraficoCripto(moeda.item.id)
+    setDadosGrafico(dadosAPI)
+    setCriptoSelecionada(moeda.item)
+    setModalVisivel(true)
+  }
 
   const carregaCotacoes = async () => {
     setCarregando(true)
@@ -68,9 +83,31 @@ const App = () => {
           coin.symbol.toLowerCase().includes(busca.toLocaleLowerCase()) 
         )}
         showsVerticalScrollIndicator={true}
-        renderItem={({ item }) => <CriptoItem coin={item} />} ListEmptyComponent={semDados()}
+        renderItem={({ item }) => <CriptoItem coin={item} onPress={() => trataModal({item})} />} ListEmptyComponent={semDados()}
       />
 
+      <Modal 
+        animationType='slide'
+        transparent={true}
+        visible={modalVisivel}>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 24}}>
+        <View style={styles.modalView}>
+          <Image source={{ uri: criptoSelecionada.image}} style={styles.logo}/>
+          <Text>Gráfico dos últimos 15 dias da Cripto {criptoSelecionada.name}</Text>
+
+          <PureChart data={dadosGrafico} width={'100%'} height={200} type='bar'/>
+
+          <View style={{flexDirection: 'row'}}>
+          <Pressable style={styles.botaoFechaModal} onPress={()=> setModalVisivel(!modalVisivel)}>
+            <Text>📊Mudar Gráfico</Text>
+          </Pressable>
+          <Pressable style={styles.botaoFechaModal} onPress={()=> setModalVisivel(!modalVisivel)}>
+            <Text>❌Fechar</Text>
+          </Pressable>
+          </View>
+        </View>
+        </View>
+      </Modal>
     </View>
   )
 }
@@ -107,6 +144,22 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     borderBottomWidth: 2,
     textAlign: 'left'
+  },
+  modalView: {
+    margin: 8,
+    backgroundColor: themes.colors.neutral.foreground,
+    borderRadius: 24,
+    padding: 8,
+    width: '100%',
+    alignItems: 'center'
+  },
+  botaoFechaModal: {
+    marginTop: 16,
+    marginRight: 16,
+    borderRadius: 16,
+    padding: 16,
+    backgroundColor: themes.colors.utility.contrast
   }
+
 })
 export default App
